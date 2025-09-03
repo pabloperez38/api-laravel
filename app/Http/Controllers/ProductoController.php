@@ -77,7 +77,7 @@ class ProductoController extends Controller
             ], 500);
         }
     } */
-    public function store(Request $request)
+    /* public function store(Request $request)
     {
         try {
             // Validación
@@ -111,6 +111,16 @@ class ProductoController extends Controller
                 'error'   => $e->getMessage()
             ], 500);
         }
+    } */
+    public function store(Request $request)
+    {
+        // Crea el producto directamente con los datos recibidos
+        $producto = Producto::create($request->all());
+
+        return response()->json([
+            'message'  => 'Producto creado correctamente',
+            'producto' => $producto
+        ], 201);
     }
     /**
      * Display the specified resource.
@@ -162,6 +172,16 @@ class ProductoController extends Controller
     } */
     public function update(Request $request, Producto $producto)
     {
+        // Actualiza el producto con todos los datos recibidos
+        $producto->update($request->all());
+
+        return response()->json([
+            'message'  => 'Producto actualizado correctamente',
+            'producto' => $producto
+        ], 200);
+    }
+    /* public function update(Request $request, Producto $producto)
+    {
         try {
             // Validación
             $validated = $request->validate([
@@ -203,11 +223,11 @@ class ProductoController extends Controller
                 'error'   => $e->getMessage()
             ], 500);
         }
-    }
+    } */
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Producto $producto)
+    /* public function destroy(Producto $producto)
     {
         try {
             $producto->delete();
@@ -221,5 +241,13 @@ class ProductoController extends Controller
                 'error'   => $e->getMessage()
             ], 500);
         }
+    } */
+    public function destroy(Producto $producto)
+    {
+        $producto->delete();
+
+        return response()->json([
+            'message' => 'Producto eliminado correctamente'
+        ], 200);
     }
 }
