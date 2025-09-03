@@ -30,7 +30,7 @@ class ProductoController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    /*  public function store(Request $request)
     {
         try {
             // Validación
@@ -76,8 +76,42 @@ class ProductoController extends Controller
                 'error'   => $e->getMessage()
             ], 500);
         }
-    }
+    } */
+    public function store(Request $request)
+    {
+        try {
+            // Validación
+            $validated = $request->validate([
+                'nombre'            => 'required|string|max:150',
+                'descripcion'       => 'nullable|string',
+                'stock'             => 'required|integer|min:0',
+                'precio'            => 'required|numeric|min:0',
+                'peso'              => 'nullable|numeric|min:0.01',
+                'disponible'        => 'boolean',
+                'fecha_vencimiento' => 'nullable|date|after:today',
+                'publicado_en'      => 'nullable|date|before_or_equal:now',
+                'categoria_id'      => 'required|exists:categorias,id',
+            ]);
 
+            // Crear producto directamente
+            $producto = Producto::create($validated);
+
+            return response()->json([
+                'message'  => 'Producto creado correctamente',
+                'producto' => $producto
+            ], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => 'Datos inválidos',
+                'errors'  => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error interno al crear el producto',
+                'error'   => $e->getMessage()
+            ], 500);
+        }
+    }
     /**
      * Display the specified resource.
      * Mostrar un solo producto
@@ -91,6 +125,41 @@ class ProductoController extends Controller
     /**
      * Update the specified resource in storage.
      */
+    /*  public function update(Request $request, Producto $producto)
+    {
+        try {
+            // Validación
+            $validated = $request->validate([
+                'nombre'            => 'required|string|max:150',
+                'descripcion'       => 'nullable|string',
+                'stock'             => 'required|integer|min:0',
+                'precio'            => 'required|numeric|min:0',
+                'peso'              => 'nullable|numeric|min:0.01',
+                'disponible'        => 'boolean',
+                'fecha_vencimiento' => 'nullable|date|after:today',
+                'publicado_en'      => 'nullable|date|before_or_equal:now',
+                'categoria_id'      => 'required|exists:categorias,id',
+            ]);
+
+            // Actualiza directamente con los datos validados
+            $producto->update($validated);
+
+            return response()->json([
+                'message'  => 'Producto actualizado correctamente',
+                'producto' => $producto
+            ], 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => 'Datos inválidos',
+                'errors'  => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error interno al actualizar el producto',
+                'error'   => $e->getMessage()
+            ], 500);
+        }
+    } */
     public function update(Request $request, Producto $producto)
     {
         try {
@@ -104,7 +173,7 @@ class ProductoController extends Controller
                 'disponible'        => 'boolean',
                 'fecha_vencimiento' => 'nullable|date|after:today',
                 'publicado_en'      => 'nullable|date|before_or_equal:now',
-                'categoria_id'      => 'required|exists:categorias,id', // valida existencia
+                'categoria_id'      => 'required|exists:categorias,id',
             ]);
 
             // Actualizar producto
@@ -135,7 +204,6 @@ class ProductoController extends Controller
             ], 500);
         }
     }
-
     /**
      * Remove the specified resource from storage.
      */
