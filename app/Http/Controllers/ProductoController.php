@@ -12,14 +12,6 @@ class ProductoController extends Controller
      */
     public function index()
     {
-        /*  $datos = Producto::all();
-        return response()->json([
-            'success' => true,
-            'data' => $datos|
-        ]); */
-
-        // return Producto::select('id', 'nombre')->get();
-
         $datos = Producto::with('categoria:id,nombre')->get()->map(function ($producto) {
             return [
                 'id' => $producto->id,
@@ -29,10 +21,9 @@ class ProductoController extends Controller
                 'precio' => $producto->precio,
                 'peso' => $producto->peso,
                 'disponible' => $producto->disponible,
-                'categoria' => $producto->categoria->nombre, // 👈 solo el nombre
+                'categoria' => $producto->categoria->nombre, // solo el nombre
             ];
         });
-        //$datos = Producto::where('disponible', true)->count();
         return response()->json($datos, 200);
     }
 
@@ -41,15 +32,60 @@ class ProductoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            // Validación
+            $validated = $request->validate([
+                'nombre'            => 'required|string|max:150',
+                'descripcion'       => 'nullable|string',
+                'stock'             => 'required|integer|min:0',
+                'precio'            => 'required|numeric|min:0',
+                'peso'              => 'nullable|numeric|min:0.01',
+                'disponible'        => 'boolean',
+                'fecha_vencimiento' => 'nullable|date|after:today',
+                'publicado_en'      => 'nullable|date|before_or_equal:now',
+                'categoria_id'      => 'required|exists:categorias,id',
+            ]);
+
+            // Crear producto
+            $producto = new Producto();
+            $producto->nombre            = $validated['nombre'];
+            $producto->descripcion       = $validated['descripcion'] ?? null;
+            $producto->stock             = $validated['stock'];
+            $producto->precio            = $validated['precio'];
+            $producto->peso              = $validated['peso'] ?? null;
+            $producto->disponible        = $validated['disponible'] ?? true;
+            $producto->fecha_vencimiento = $validated['fecha_vencimiento'] ?? null;
+            $producto->publicado_en      = $validated['publicado_en'] ?? null;
+            $producto->categoria_id      = $validated['categoria_id'];
+            $producto->save();
+
+            return response()->json([
+                'message'  => 'Producto creado correctamente',
+                'producto' => $producto
+            ], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Captura errores de validación
+            return response()->json([
+                'message' => 'Datos inválidos',
+                'errors'  => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            // Captura cualquier otro error
+            return response()->json([
+                'message' => 'Error interno al crear el producto',
+                'error'   => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
      * Display the specified resource.
+     * Mostrar un solo producto
      */
     public function show(Producto $producto)
     {
-        //
+        $producto->load('categoria');
+        return response()->json($producto, 200);
     }
 
     /**
@@ -57,7 +93,47 @@ class ProductoController extends Controller
      */
     public function update(Request $request, Producto $producto)
     {
-        //
+        try {
+            // Validación
+            $validated = $request->validate([
+                'nombre'            => 'required|string|max:150',
+                'descripcion'       => 'nullable|string',
+                'stock'             => 'required|integer|min:0',
+                'precio'            => 'required|numeric|min:0',
+                'peso'              => 'nullable|numeric|min:0.01',
+                'disponible'        => 'boolean',
+                'fecha_vencimiento' => 'nullable|date|after:today',
+                'publicado_en'      => 'nullable|date|before_or_equal:now',
+                'categoria_id'      => 'required|exists:categorias,id', // valida existencia
+            ]);
+
+            // Actualizar producto
+            $producto->nombre            = $validated['nombre'];
+            $producto->descripcion       = $validated['descripcion'] ?? null;
+            $producto->stock             = $validated['stock'];
+            $producto->precio            = $validated['precio'];
+            $producto->peso              = $validated['peso'] ?? null;
+            $producto->disponible        = $validated['disponible'] ?? true;
+            $producto->fecha_vencimiento = $validated['fecha_vencimiento'] ?? null;
+            $producto->publicado_en      = $validated['publicado_en'] ?? null;
+            $producto->categoria_id      = $validated['categoria_id'];
+            $producto->save();
+
+            return response()->json([
+                'message'  => 'Producto actualizado correctamente',
+                'producto' => $producto
+            ], 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => 'Datos inválidos',
+                'errors'  => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error interno al actualizar el producto',
+                'error'   => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -65,6 +141,17 @@ class ProductoController extends Controller
      */
     public function destroy(Producto $producto)
     {
-        //
+        try {
+            $producto->delete();
+
+            return response()->json([
+                'message' => 'Producto eliminado correctamente'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error interno al eliminar el producto',
+                'error'   => $e->getMessage()
+            ], 500);
+        }
     }
 }
