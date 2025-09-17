@@ -9,21 +9,36 @@ use App\Http\Controllers\ProductoController;
 Route::apiResource('categorias', CategoriaController::class);
 //Route::apiResource('productos', ProductoController::class);
 // GET → Listar todos
-Route::get('productos', [ProductoController::class, 'index']);
+
 
 // POST → Crear nuevo
-Route::post('productos', [ProductoController::class, 'store']);
+
 
 // GET → Mostrar uno en particular
-Route::get('productos/{producto}', [ProductoController::class, 'show']);
+//Route::get('productos/{producto}', [ProductoController::class, 'show']);
 
 // PUT → Actualizar completamente
-Route::put('productos/{producto}', [ProductoController::class, 'update']);
+//Route::put('productos/{producto}', [ProductoController::class, 'update']);
 
 // PATCH → Actualizar parcialmente
-Route::patch('productos/{producto}', [ProductoController::class, 'update']);
+//Route::patch('productos/{producto}', [ProductoController::class, 'update']);
 
 // DELETE → Eliminar
-Route::delete('productos/{producto}', [ProductoController::class, 'destroy']);
+//Route::delete('productos/{producto}', [ProductoController::class, 'destroy']);
 
 Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+
+// Rutas protegidas con JWT
+/* Route::group(['middleware' => ['auth:api']], function () {
+    Route::get('/productos', [ProductoController::class, 'index']);
+    Route::post('/productos', [ProductoController::class, 'store']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/me', [AuthController::class, 'me']);
+}); */
+Route::group(['middleware' => ['auth:api']], function () {
+    Route::get('/productos', [ProductoController::class, 'index']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/me', [AuthController::class, 'me']);
+});
+//Route::apiResource('productos', ProductoController::class)->middleware('auth:api');
