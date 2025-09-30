@@ -113,7 +113,6 @@ Se utiliza JWT para proteger los endpoints.
 
 **Pablo Pérez** - Técnico Programador UTN Concordia
 
-
 ---
 
 ## Licencia
