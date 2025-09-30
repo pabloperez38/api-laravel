@@ -1,6 +1,6 @@
 # API de Productos en Laravel
 
-[![Laravel](https://img.shields.io/badge/Laravel-10-orange.svg)](https://laravel.com/)
+[![Laravel](https://img.shields.io/badge/Laravel-12-orange.svg)](https://laravel.com/)
 [![PHP](https://img.shields.io/badge/PHP-8.2-blue.svg)](https://www.php.net/)
 [![MySQL](https://img.shields.io/badge/MySQL-8-blue.svg)](https://www.mysql.com/)
 [![JWT](https://img.shields.io/badge/JWT-auth-green.svg)](https://jwt.io/)
