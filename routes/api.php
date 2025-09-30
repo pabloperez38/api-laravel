@@ -7,7 +7,7 @@ use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ProductoController;
 
 Route::apiResource('categorias', CategoriaController::class);
-//Route::apiResource('productos', ProductoController::class);
+Route::apiResource('productos', ProductoController::class);
 // GET → Listar todos
 
 
@@ -34,11 +34,9 @@ Route::post('/login', [AuthController::class, 'login']);
     Route::get('/productos', [ProductoController::class, 'index']);
     Route::post('/productos', [ProductoController::class, 'store']);
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/me', [AuthController::class, 'me']);
-}); */
+}); 
 Route::group(['middleware' => ['auth:api']], function () {
     Route::get('/productos', [ProductoController::class, 'index']);
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/me', [AuthController::class, 'me']);
-});
+    Route::post('/logout', [AuthController::class, 'logout']);  
+});*/
 //Route::apiResource('productos', ProductoController::class)->middleware('auth:api');
