@@ -7,7 +7,7 @@ use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ProductoController;
 
 Route::apiResource('categorias', CategoriaController::class);
-Route::apiResource('productos', ProductoController::class);
+
 // GET → Listar todos
 
 
@@ -30,13 +30,8 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 // Rutas protegidas con JWT
-/* Route::group(['middleware' => ['auth:api']], function () {
-    Route::get('/productos', [ProductoController::class, 'index']);
-    Route::post('/productos', [ProductoController::class, 'store']);
-    Route::post('/logout', [AuthController::class, 'logout']);
-}); 
-Route::group(['middleware' => ['auth:api']], function () {
-    Route::get('/productos', [ProductoController::class, 'index']);
-    Route::post('/logout', [AuthController::class, 'logout']);  
-});*/
-//Route::apiResource('productos', ProductoController::class)->middleware('auth:api');
+Route::group(['middleware' => ['jwt.auth']], function () {
+    Route::get('me', [AuthController::class, 'me']);
+    Route::post('logout', [AuthController::class, 'logout']);
+    Route::apiResource('productos', ProductoController::class);
+});

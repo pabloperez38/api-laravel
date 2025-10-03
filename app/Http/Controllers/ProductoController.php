@@ -7,16 +7,25 @@ use Illuminate\Http\Request;
 
 
 class ProductoController extends Controller
-{
+{  
+
     /**
      * @OA\Get(
      *     path="/api/productos",
      *     summary="Obtener lista de productos",
+     *     security={{"bearerAuth":{}}},
      *     tags={"Productos"},
      *     @OA\Response(
      *         response=200,
      *         description="Lista de productos obtenida correctamente"
-     *     )
+     *     ),
+     *    @OA\Response(
+     *         response=401,
+     *         description="No autorizado - Token ausente o inválido",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="No autenticado o token inválido")
+     *         )
+     *     ),
      * )
      */
     public function index()
@@ -40,62 +49,45 @@ class ProductoController extends Controller
      * @OA\Post(
      *     path="/api/productos",
      *     summary="Crear un nuevo producto",
-     *     description="Crea un producto con los datos enviados en el cuerpo de la petición.",
+     *     description="Crea un producto nuevo. Requiere autenticación con token JWT.",
      *     tags={"Productos"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"nombre","stock","precio","categoria_id"},
-     *             @OA\Property(property="nombre", type="string", maxLength=150, example="Laptop Gamer"),
-     *             @OA\Property(property="descripcion", type="string", nullable=true, example="Laptop con 16GB RAM y RTX 4060"),
-     *             @OA\Property(property="stock", type="integer", minimum=0, example=20),
-     *             @OA\Property(property="precio", type="number", format="float", minimum=0, example=1500.50),
-     *             @OA\Property(property="peso", type="number", format="float", nullable=true, minimum=0.01, example=2.5),
+     *             @OA\Property(property="nombre", type="string", example="Laptop Gamer"),
+     *             @OA\Property(property="descripcion", type="string", example="Laptop con 16GB RAM y RTX 4060"),
+     *             @OA\Property(property="stock", type="integer", example=20),
+     *             @OA\Property(property="precio", type="number", format="float", example=1500.50),
+     *             @OA\Property(property="peso", type="number", format="float", example=2.5),
      *             @OA\Property(property="disponible", type="boolean", example=true),
-     *             @OA\Property(property="fecha_vencimiento", type="string", format="date", nullable=true, example="2025-12-31"),
-     *             @OA\Property(property="publicado_en", type="string", format="date-time", nullable=true, example="2025-09-30T12:30:00Z"),
-     *             @OA\Property(property="categoria_id", type="integer", example=3, description="ID de una categoría existente")
+     *             @OA\Property(property="fecha_vencimiento", type="string", format="date", example="2025-12-31"),
+     *             @OA\Property(property="publicado_en", type="string", format="date-time", example="2025-09-30T12:30:00Z"),
+     *             @OA\Property(property="categoria_id", type="integer", example=1)
      *         )
      *     ),
      *     @OA\Response(
      *         response=201,
-     *         description="Producto creado correctamente",
+     *         description="Producto creado correctamente"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="No autorizado - Token ausente o inválido",
      *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Producto creado correctamente"),
-     *             @OA\Property(property="producto", type="object",
-     *                 @OA\Property(property="id", type="integer", example=10),
-     *                 @OA\Property(property="nombre", type="string", example="Laptop Gamer"),
-     *                 @OA\Property(property="descripcion", type="string", example="Laptop con 16GB RAM y RTX 4060"),
-     *                 @OA\Property(property="stock", type="integer", example=20),
-     *                 @OA\Property(property="precio", type="number", format="float", example=1500.50),
-     *                 @OA\Property(property="peso", type="number", format="float", example=2.5),
-     *                 @OA\Property(property="disponible", type="boolean", example=true),
-     *                 @OA\Property(property="fecha_vencimiento", type="string", format="date", example="2025-12-31"),
-     *                 @OA\Property(property="publicado_en", type="string", format="date-time", example="2025-09-30T12:30:00Z"),
-     *                 @OA\Property(property="categoria_id", type="integer", example=3),
-     *                 @OA\Property(property="created_at", type="string", format="date-time", example="2025-09-30T13:00:00Z"),
-     *                 @OA\Property(property="updated_at", type="string", format="date-time", example="2025-09-30T13:00:00Z")
-     *             )
+     *             @OA\Property(property="error", type="string", example="No autenticado o token inválido")
      *         )
      *     ),
      *     @OA\Response(
      *         response=422,
-     *         description="Error de validación",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Datos inválidos"),
-     *             @OA\Property(property="errors", type="object")
-     *         )
+     *         description="Datos inválidos"
      *     ),
      *     @OA\Response(
      *         response=500,
-     *         description="Error interno del servidor",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Error interno al crear el producto"),
-     *             @OA\Property(property="error", type="string", example="SQLSTATE[23000]: Integrity constraint violation...")
-     *         )
+     *         description="Error interno"
      *     )
      * )
      */
+
     public function store(Request $request)
     {
         try {
@@ -198,6 +190,7 @@ class ProductoController extends Controller
      *     summary="Obtener un producto por ID",
      *     description="Devuelve la información de un producto específico según su ID.",
      *     tags={"Productos"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -293,6 +286,7 @@ class ProductoController extends Controller
      *     summary="Actualizar un producto existente",
      *     description="Actualiza los datos de un producto según su ID.",
      *     tags={"Productos"},
+     *      security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -408,6 +402,7 @@ class ProductoController extends Controller
      *     summary="Eliminar un producto",
      *     description="Elimina un producto existente según su ID.",
      *     tags={"Productos"},
+     *      security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",

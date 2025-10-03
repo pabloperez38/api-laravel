@@ -4,9 +4,12 @@ namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
-use Tymon\JWTAuth\Exceptions\TokenInvalidException;
-use Tymon\JWTAuth\Exceptions\TokenExpiredException;
+use Illuminate\Auth\AuthenticationException;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+
 
 class Handler extends ExceptionHandler
 {
@@ -35,23 +38,39 @@ class Handler extends ExceptionHandler
      */
     public function register(): void
     {
-        // Puedes agregar lógica personalizada aquí si lo deseas
+        //
     }
 
+    /**
+     * Renderiza las excepciones a una respuesta HTTP.
+     */
     public function render($request, Throwable $exception)
     {
-        if ($exception instanceof TokenInvalidException) {
-            return response()->json(['error' => 'Token inválido'], 401);
-        } elseif ($exception instanceof TokenExpiredException) {
-            return response()->json(['error' => 'Token expirado'], 401);
-        } elseif ($exception instanceof JWTException) {
-            return response()->json(['error' => 'Token no enviado o inválido'], 401);
+        // Forzar JSON en rutas API
+        if ($request->expectsJson() || $request->is('api/*')) {
+            if ($exception instanceof TokenInvalidException) {
+                return response()->json(['error' => 'Token inválido'], 401);
+            } elseif ($exception instanceof TokenExpiredException) {
+                return response()->json(['error' => 'Token expirado'], 401);
+            } elseif ($exception instanceof JWTException) {
+                return response()->json(['error' => 'Token no enviado o inválido'], 401);
+            } elseif ($exception instanceof AuthenticationException) {
+                return response()->json(['error' => 'No autenticado'], 401);
+            }
+
+            if ($exception instanceof UnauthorizedHttpException) {
+                $message = $exception->getMessage() ?: 'No autenticado';
+                return response()->json(['error' => $message], 401);
+            }
         }
 
         return parent::render($request, $exception);
     }
 
-    protected function unauthenticated($request, \Illuminate\Auth\AuthenticationException $exception)
+    /**
+     * Maneja usuarios no autenticados.
+     */
+    protected function unauthenticated($request, AuthenticationException $exception)
     {
         return response()->json(['error' => 'No autenticado'], 401);
     }
